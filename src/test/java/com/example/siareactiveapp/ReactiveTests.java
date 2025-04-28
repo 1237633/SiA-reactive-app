@@ -182,5 +182,22 @@ public class ReactiveTests {
                 .expectNext("Barbossa eats Apples")
                 .verifyComplete();
     }
+
+    @Test
+    public void firstWithSignalFlux() {
+        Flux<String> slowFlux = Flux.just("tortoise", "snail", "sloth")
+                .delaySubscription(Duration.ofMillis(100));
+
+        Flux<String> fastFlux = Flux.just("hare", "cheetah", "squirrel");
+        //Выбирает тот стрим, который первым отправит элемент и дальше работает с ним.
+        //В нашем случае по сути = fastFlux
+        Flux<String> firstFlux = Flux.firstWithSignal(slowFlux, fastFlux);
+
+        StepVerifier.create(firstFlux)
+                .expectNext("hare")
+                .expectNext("cheetah")
+                .expectNext("squirrel")
+                .verifyComplete();
+    }
 }
 
